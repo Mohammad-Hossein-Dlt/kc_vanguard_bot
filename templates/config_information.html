@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mini Project 1</title>
+<!--    <link rel="stylesheet" href="styles/app.css">-->
+<!--    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">-->
+    <style>
+
+        html {
+            box-sizing: border-box;
+        }
+        *,
+        *::after,
+        *::before{
+            box-sizing: inherit;
+            margin: 0;
+        }
+        body{
+
+            background-color:  #080710;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .wrapper{
+            width: 300px;
+            position: relative;
+            align-items: center;
+        }
+
+        .shape{
+            width: 130px;
+            height: 130px;
+            border-radius: 100%;
+            position: absolute;
+            z-index: -1;
+        }
+        .shape--one{
+            background: linear-gradient(#0D47A1, #42A5F5);
+            top: -60px;
+            left: -60px;
+        }
+        .shape--two{
+            background: linear-gradient(45deg, #E65100, #FFA726);
+            bottom: -60px;
+            right: -60px;
+        }
+
+        #container{
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.13);
+            color: #fff;
+            padding: 50px 35px 35px 35px;
+            border: 2px solid rgba(255,255,255,0.13);
+            border-radius: 10px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        .title, .item{
+            text-align: center;
+        }
+
+        .sub-title{
+            font-size: 24px;
+
+        }
+
+        .expiry_time, .used-data, .remaining-data, .total-data{
+            font-size: 16px;
+
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="shape shape--one"></div>
+        <div class="shape shape--two"></div>
+        <div  id="container" class="form">
+            <h2 class="title">وضعیت کانفیگ شما</h2>
+            <br>
+            <div class="item">
+                <p class="sub-title" >انقضا</p>
+                <p class="expiry_time"> {{expiry_time}} </p>
+            </div>
+            <br>
+            <br>
+            <div class="item">
+                <p class="sub-title" >حجم مصرفی</p>
+                <p class="used-data"> {{usage}} </p>
+            </div>
+            <br>
+            <div class="item">
+                <p class="sub-title" >حجم باقی‌مانده</p>
+                <p class="remaining-data"> {{remained}} </p>
+            </div>
+            <br>
+            <div class="item">
+                <p class="sub-title" >حجم کل</p>
+                <p class="total-data"> {{total}} </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
