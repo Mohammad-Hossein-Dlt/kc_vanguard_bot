@@ -48,8 +48,6 @@ class Inbounds(Base):
     HeaderType = Column(Enum(constants.HeaderType), nullable=False, default=constants.HeaderType.none)
     Panel_Inbound_Id = Column(Integer, nullable=False)
     Inbound_Port = Column(Integer, nullable=False)
-    # Test_Inbound_Id = Column(Integer, nullable=False)
-    # Test_Port = Column(Integer, nullable=False)
     Limit = Column(Integer, nullable=False, default=250)
     OrderBy = Column(Integer, nullable=True)
 
@@ -66,8 +64,6 @@ class TestInbounds(Base):
     HeaderType = Column(Enum(constants.HeaderType), nullable=False, default=constants.HeaderType.none)
     Panel_Inbound_Id = Column(Integer, nullable=False)
     Inbound_Port = Column(Integer, nullable=False)
-    # Test_Inbound_Id = Column(Integer, nullable=False)
-    # Test_Port = Column(Integer, nullable=False)
     Limit = Column(Integer, nullable=False, default=250)
     OrderBy = Column(Integer, nullable=True)
 
