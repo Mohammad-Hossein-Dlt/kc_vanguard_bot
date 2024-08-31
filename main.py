@@ -15,7 +15,7 @@ from api_routers import (
     settings,
     server,
     inbound,
-    # test_inbound,
+    test_inbound,
     subscription,
     payment,
     config,
@@ -155,7 +155,7 @@ app.include_router(message.router, prefix=BASE_URL)
 app.include_router(settings.router, prefix=BASE_URL)
 app.include_router(server.router, prefix=BASE_URL)
 app.include_router(inbound.router, prefix=BASE_URL)
-# app.include_router(test_inbound.router, prefix=BASE_URL)
+app.include_router(test_inbound.router, prefix=BASE_URL)
 app.include_router(subscription.router, prefix=BASE_URL)
 app.include_router(payment.router, prefix=BASE_URL)
 app.include_router(config.router, prefix=BASE_URL)
