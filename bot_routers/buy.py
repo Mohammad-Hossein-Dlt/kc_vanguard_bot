@@ -63,7 +63,7 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
                 [
                     InlineKeyboardButton(
                         capacity,
-                        callback_data=f"None{inbound.Id}"
+                        callback_data=f"None{inbound.Id}X"
                     ),
                     InlineKeyboardButton(
                         inbound.Remark,

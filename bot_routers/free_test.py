@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
 from constants import gb_size
-from panel_api import add_client
+from panel_api import add_client, inbound_client_len
 import models
 from database import sessionLocal
 from raw_texts import BACK
@@ -86,28 +86,66 @@ async def free_test(data: dict, update: Update, context: CallbackContext):
 
     if step == 1:
         db = sessionLocal()
-        inbounds = db.query(models.TestInbounds).all()
 
-        if not inbounds:
+        inbounds_with_servers = db.query(models.TestInbounds, models.Servers).join(
+            models.Servers
+        ).all()
+
+        buttons_keys = [
+            [
+                InlineKeyboardButton(
+                    "ظرفیت",
+                    callback_data="None1"
+                ),
+                InlineKeyboardButton(
+                    "نام سرور",
+                    callback_data="None2"
+                ),
+            ]
+        ]
+
+        if not inbounds_with_servers:
             await server_not_available(update, context)
             return
 
-        buttons_keys = []
+        for inbound, server in inbounds_with_servers:
+            length = inbound_client_len(server.Url, server.UserName, server.Password, inbound.Panel_Inbound_Id)
+            remained = inbound.Limit - length if length else 0
+            capacity = f"{remained} نفر " if remained > 0 else "ندارد"
 
-        for i in inbounds:
             callback_data = data.copy()
-            callback_data["i_id"] = i.Id
+            callback_data["i_id"] = inbound.Id
             callback_data["step"] = 2
+
             encode = callback_data_encoder(callback_data)
 
             buttons_keys.append(
                 [
                     InlineKeyboardButton(
-                        i.Remark,
-                        callback_data=encode,
+                        capacity,
+                        callback_data=f"None{inbound.Id}X"
+                    ),
+                    InlineKeyboardButton(
+                        inbound.Remark,
+                        callback_data=encode
                     ),
                 ]
             )
+
+        # for i in inbounds:
+        #     callback_data = data.copy()
+        #     callback_data["i_id"] = i.Id
+        #     callback_data["step"] = 2
+        #     encode = callback_data_encoder(callback_data)
+        #
+        #     buttons_keys.append(
+        #         [
+        #             InlineKeyboardButton(
+        #                 i.Remark,
+        #                 callback_data=encode,
+        #             ),
+        #         ]
+        #     )
 
         back_state = data.copy()
         back_state["i_id"] = -1
@@ -116,18 +154,13 @@ async def free_test(data: dict, update: Update, context: CallbackContext):
         buttons_keys.append(
             [
                 InlineKeyboardButton(
+                    "❌  بستن پنل",
+                    callback_data="close"
+                ),
+                InlineKeyboardButton(
                     BACK,
                     callback_data=callback_data_encoder(back_state),
                 ),
-            ]
-        )
-
-        buttons_keys.append(
-            [
-                InlineKeyboardButton(
-                    "❌  بستن پنل",
-                    callback_data="close"
-                )
             ]
         )
 
@@ -157,6 +190,21 @@ async def free_test(data: dict, update: Update, context: CallbackContext):
             models.Users.Chat_Id == update.effective_chat.id,
         ).first()
 
+        length = inbound_client_len(server.Url, server.UserName, server.Password, inbound.Panel_Inbound_Id)
+
+        if not server or not inbound or not user or not length:
+            await server_not_available(update, context)
+            return
+
+        remained = inbound.Limit - length
+
+        if remained < 1:
+            await update.callback_query.answer(
+                text="ظرفیت این سرور تکمیل شده است!",
+                show_alert=True,
+            )
+            return
+
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="درحال ساخت کانفیگ...",
@@ -176,7 +224,7 @@ async def free_test(data: dict, update: Update, context: CallbackContext):
             total_gb=1 * gb_size,
         )
 
-        if not server or not inbound or not user or not config_url:
+        if not config_url:
             await server_not_available(update, context)
             return
 
