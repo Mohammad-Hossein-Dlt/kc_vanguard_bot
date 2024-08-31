@@ -198,6 +198,8 @@ async def free_test(data: dict, update: Update, context: CallbackContext):
 
         db.commit()
 
+        db.close()
+
         a = "تست رایگان شما"
         b = "حجم: 1 گیگ"
         c = "زمان: 1 روزه"

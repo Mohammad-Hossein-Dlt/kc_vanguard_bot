@@ -37,9 +37,13 @@ async def fetch_one(
         db: db_dependency,
         inbound_id: int,
 ):
-    inbound = db.query(models.TestInbounds).where(
-        models.TestInbounds.Id == inbound_id,
+    server, inbound = db.query(models.Servers, models.TestInbounds).join(
+        models.TestInbounds
+    ).where(
+        models.TestInbounds.Id == inbound_id
     ).first()
+
+    inbound.Length = inbound_client_len(server.Url, server.UserName, server.Password, inbound.Panel_Inbound_Id)
 
     return inbound
 
@@ -91,6 +95,7 @@ async def edit(
         port: int | None = None,
         network: constants.Network | None = None,
         security: constants.Security | None = None,
+        limit: int | None = None,
 ):
     remark = parse_null(remark)
     server_id = parse_null(server_id)
@@ -100,6 +105,7 @@ async def edit(
     port = parse_null(port)
     network = parse_null(network)
     security = parse_null(security, constants.Security.none)
+    limit = parse_null(limit)
 
     inbound = db.query(models.TestInbounds).where(
         models.TestInbounds.Id == inbound_id,
@@ -118,6 +124,7 @@ async def edit(
     inbound.Network = network if network is not None else inbound.Network
     inbound.Security = security if security is not None else inbound.Security
     inbound.HeaderType = header_type if network is not None and security is not None else inbound.HeaderType
+    inbound.Limit = limit if limit is not None else inbound.Limit
 
     db.commit()
 
