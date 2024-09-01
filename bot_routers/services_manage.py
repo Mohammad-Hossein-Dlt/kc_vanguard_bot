@@ -895,9 +895,10 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
 
         if config_url:
             connection_link = "لینک اتصال:"
-            info_link = "لینک اطلاعات سرویس:"
-            information = f"{SERVER_URL}/api/v2/config/information?service_id={services_id}"
-            text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}\n\n{info_link}\n\n{information}")
+            # info_link = "لینک اطلاعات سرویس:"
+            # information = f"{SERVER_URL}/api/v2/config/information?service_id={services_id}"
+            # text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}\n\n{info_link}\n\n{information}")
+            text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}")
             await update.effective_message.edit_text(
                 text=text,
                 reply_markup=back_state_markup,

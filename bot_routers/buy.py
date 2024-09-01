@@ -465,9 +465,10 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
             await update.effective_message.delete()
 
             connection_link = "لینک سرویس:"
-            info_link = "لینک اطلاعات سرویس:"
-            information = f"{SERVER_URL}/api/v2/config/config_information?service_id={user_service.Id}"
-            text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}\n\n{info_link}\n\n{information}")
+            # info_link = "لینک اطلاعات سرویس:"
+            # information = f"{SERVER_URL}/api/v2/config/config_information?service_id={user_service.Id}"
+            # text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}\n\n{info_link}\n\n{information}")
+            text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}")
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=text,
