@@ -13,17 +13,15 @@ class Admin(Base):
 class Setting(Base):
     __tablename__ = 'Settings'
     Id = Column(BigInteger, primary_key=True, autoincrement=True)
-    Channel_Id = Column(BigInteger, unique=False, nullable=False, default=0)
     Enabled = Column(BigInteger, unique=False, nullable=False, default=True)
-    # Limit_Per_Inbound = Column(Integer, nullable=False, default=250)
 
 
 class MetaData(Base):
     __tablename__ = 'MetaData'
     Id = Column(BigInteger, primary_key=True, autoincrement=True)
     Channel_Id = Column(Text, nullable=False)
-    Bot_Id = Column(Text, nullable=False)
     Support_Id = Column(Text, nullable=False)
+    Bot_Id = Column(Text, nullable=False)
 
 
 class Servers(Base):
