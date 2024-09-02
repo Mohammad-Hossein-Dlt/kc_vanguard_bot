@@ -7,7 +7,7 @@ router = APIRouter(prefix="/setting", tags=["setting"])
 templates = Jinja2Templates(directory='templates')
 
 
-@router.get('/enable', status_code=status.HTTP_201_CREATED)
+@router.get('/edit', status_code=status.HTTP_201_CREATED)
 async def create(
         db: db_dependency,
         enable: bool,
