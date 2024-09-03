@@ -27,6 +27,7 @@ async def send(
         return ResponseMessage(error=False, message="message sent.")
 
     except Exception as ex:
+        print(ex)
         return ResponseMessage(error=True, message="error.")
 
 
@@ -46,6 +47,7 @@ async def delete(
             )
 
         except Exception as ex:
+            print(ex)
             print(f"Failed to deleted message from {user.Chat_Id}.")
 
     return ResponseMessage(error=False, message="message deleted.")

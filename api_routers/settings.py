@@ -2,21 +2,38 @@ from fastapi import APIRouter, Request, status
 from fastapi.templating import Jinja2Templates
 import models
 from db_dependency import db_dependency
+from utils.parse_null import parse_null
+from utils.response_model import ResponseMessage
 
 router = APIRouter(prefix="/setting", tags=["setting"])
 templates = Jinja2Templates(directory='templates')
 
 
-@router.get('/edit', status_code=status.HTTP_201_CREATED)
-async def create(
+@router.get('/fetch', status_code=status.HTTP_200_OK)
+async def get(
         db: db_dependency,
-        enable: bool,
 ):
     settings = db.query(models.Setting).first()
 
     if settings:
+        return settings
 
-        settings.Enabled = enable
+    return dict()
+
+
+@router.put('/edit', status_code=status.HTTP_201_CREATED)
+async def create(
+        db: db_dependency,
+        enable: bool | None = None,
+):
+
+    enable = parse_null(enable)
+
+    settings = db.query(models.Setting).first()
+
+    if settings:
+
+        settings.Enabled = enable if enable is not None else settings.Enabled
 
     else:
         settings = models.Setting()
@@ -24,3 +41,19 @@ async def create(
         db.add(settings)
 
     db.commit()
+
+
+@router.delete('/delete', status_code=status.HTTP_200_OK)
+async def delete(
+        db: db_dependency,
+        settings_id: int,
+):
+    settings = db.query(models.Setting).where(
+        models.Setting.Id == settings_id,
+    ).first()
+
+    if settings:
+        db.delete(settings)
+        db.commit()
+
+    return ResponseMessage(error=False, message="settings deleted.")

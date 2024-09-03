@@ -78,7 +78,7 @@ async def edit(
 
     db.commit()
 
-    return 'server updated.'
+    return ResponseMessage(error=False, message="server updated.")
 
 
 @router.put("/reorder", status_code=status.HTTP_200_OK)
@@ -111,4 +111,4 @@ async def delete(
         db.delete(server)
         db.commit()
 
-    return 'server deleted.'
+    return ResponseMessage(error=False, message="server deleted.")

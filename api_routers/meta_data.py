@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 import models
 from db_dependency import db_dependency
+from utils.response_model import ResponseMessage
 
 router = APIRouter(prefix="/meta_data", tags=["Meta_Data"])
 
@@ -31,7 +32,7 @@ async def edit(
 
     db.commit()
 
-    return 'meta_data added.'
+    return ResponseMessage(error=False, message="meta_data edited.")
 
 
 @router.get('/fetch', status_code=status.HTTP_200_OK)
@@ -43,7 +44,7 @@ async def get(
     if meta_data:
         return meta_data
 
-    return []
+    return dict()
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)
@@ -59,4 +60,4 @@ async def delete(
         db.delete(meta_data)
         db.commit()
 
-    return 'meta_data deleted.'
+    return ResponseMessage(error=False, message="meta_data deleted.")

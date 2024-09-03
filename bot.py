@@ -9,7 +9,7 @@ from bot_routers.wallet import wallet_steps
 from bot_routers.free_test import free_test
 from bot_routers.services_manage import services_manage_steps
 from config import API_TOKEN
-from telegram import Update, ChatMember
+from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,

@@ -80,7 +80,7 @@ async def edit(
 
     db.commit()
 
-    return ResponseMessage(error=False, message='subscription edited.')
+    return ResponseMessage(error=False, message="subscription edited.")
 
 
 @router.put("/reorder", status_code=status.HTTP_200_OK)

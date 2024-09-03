@@ -80,7 +80,7 @@ async def insert(
     db.add(inbound)
     db.commit()
 
-    return 'inbound added.'
+    return ResponseMessage(error=False, message="inbound added.")
 
 
 @router.put('/edit', status_code=status.HTTP_200_OK)
@@ -128,7 +128,7 @@ async def edit(
 
     db.commit()
 
-    return 'inbound added.'
+    return ResponseMessage(error=False, message="inbound edited.")
 
 
 @router.put("/reorder", status_code=status.HTTP_200_OK)
@@ -148,7 +148,7 @@ async def reorder(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="TestInbounds reordered.")
+    return ResponseMessage(error=False, message="test inbounds reordered.")
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)
@@ -164,4 +164,4 @@ async def delete(
         db.delete(inbound)
         db.commit()
 
-    return 'server deleted.'
+    return ResponseMessage(error=False, message="inbound deleted.")
