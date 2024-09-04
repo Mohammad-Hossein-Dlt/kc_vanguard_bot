@@ -10,10 +10,10 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 async def get(
         db: db_dependency,
 ):
-    admin = db.query(models.Admin).first()
+    admins = db.query(models.Admin).all()
 
-    if admin:
-        return admin
+    if admins:
+        return admins
 
     return dict()
 
