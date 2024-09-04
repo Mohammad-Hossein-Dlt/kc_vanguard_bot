@@ -7,6 +7,8 @@ import models
 from database import sessionLocal
 from sqlalchemy import and_
 
+from utils.check_admin import check_admin
+
 
 async def add_task(
         user_id: int,
@@ -128,9 +130,7 @@ async def check_server_enabled(update: Update, context: CallbackContext):
 
     settings = db.query(models.Setting).first()
 
-    admin = db.query(models.Admin).first()
-
-    if admin.Chat_Id == update.effective_user.id:
+    if await check_admin(update.effective_user.id):
         return True
 
     if settings.Enabled:

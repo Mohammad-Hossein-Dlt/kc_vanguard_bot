@@ -12,6 +12,7 @@ from database import sessionLocal
 from sqlalchemy import or_
 from api_routers import (
     message,
+    admin,
     settings,
     server,
     inbound,
@@ -152,6 +153,7 @@ app.add_middleware(
 BASE_URL = "/api/v2"
 
 app.include_router(message.router, prefix=BASE_URL)
+app.include_router(admin.router, prefix=BASE_URL)
 app.include_router(settings.router, prefix=BASE_URL)
 app.include_router(server.router, prefix=BASE_URL)
 app.include_router(inbound.router, prefix=BASE_URL)

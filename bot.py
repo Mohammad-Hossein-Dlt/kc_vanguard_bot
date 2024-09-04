@@ -161,9 +161,11 @@ async def forward_message(update: Update, context: CallbackContext):
 
     db = sessionLocal()
 
-    admin = db.query(models.Admin).first()
+    admin = db.query(models.Admin).where(
+        models.Admin.Chat_Id == update.effective_user.id
+    ).first()
 
-    if update.effective_user.id == admin.Chat_Id:
+    if admin:
 
         # settings = db.query(models.Setting).first()
         # bot_member = await context.bot.get_chat_member(

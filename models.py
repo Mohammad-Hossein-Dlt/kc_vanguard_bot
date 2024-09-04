@@ -8,6 +8,7 @@ class Admin(Base):
     __tablename__ = 'Admin'
     Id = Column(BigInteger, primary_key=True, autoincrement=True)
     Chat_Id = Column(BigInteger, unique=True, nullable=False)
+    SuperAdmin = Column(Boolean, nullable=False, default=False)
 
 
 class Setting(Base):

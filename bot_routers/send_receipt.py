@@ -6,7 +6,6 @@ from database import sessionLocal
 from utils.actions import tap_to_coppy, escape
 from raw_texts import BACK_TO_HOME
 
-
 money, receipt = range(2)
 
 
@@ -82,7 +81,9 @@ async def wait_for_confirm(update: Update, context: CallbackContext) -> int:
 
         db = sessionLocal()
 
-        admin = db.query(models.Admin).first()
+        admins = db.query(models.Admin).where(
+            models.Admin.SuperAdmin == True,
+        ).all()
         db.close()
 
         text = escape(f"@{username}\n\n{tap_to_coppy(user_id)}\n\n{amount}  تومان واریز کرده ")
@@ -103,13 +104,14 @@ async def wait_for_confirm(update: Update, context: CallbackContext) -> int:
         ]
         buttons_markup = InlineKeyboardMarkup(buttons_keys)
 
-        await context.bot.send_photo(
-            chat_id=admin.Chat_Id,
-            photo=photo,
-            caption=text,
-            reply_markup=buttons_markup,
-            parse_mode="MarkdownV2",
-        )
+        for admin in admins:
+            await context.bot.send_photo(
+                chat_id=admin.Chat_Id,
+                photo=photo,
+                caption=text,
+                reply_markup=buttons_markup,
+                parse_mode="MarkdownV2",
+            )
 
         return ConversationHandler.END
 
@@ -179,6 +181,18 @@ async def reject_receipt(update: Update, context: CallbackContext):
 
 async def final_confirm_receipt(update: Update, context: CallbackContext):
     action, user_id, amount = update.callback_query.data.split("_")
+
+    db = sessionLocal()
+
+    user = db.query(models.Users).where(
+        models.Users.Chat_Id == user_id
+    ).first()
+
+    user.Wallet += int(amount)
+
+    db.commit()
+
+    db.close()
 
     text = update.effective_message.caption
     text = text.replace("تایید رسید کاربر؟", "").replace("رد رسید کاربر؟", "")
