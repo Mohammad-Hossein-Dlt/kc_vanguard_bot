@@ -76,15 +76,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-# async def expire(context: CallbackContext):
-#     job = context.job
-#     await context.bot.edit_message_text(
-#         text="//////",
-#         chat_id=job.chat_id,
-#         message_id=job.data
-#     )
-
-
 async def home_button_handler(update: Update, context: CallbackContext) -> None:
     text = update.effective_message.text
 
