@@ -2,6 +2,7 @@ from fastapi import APIRouter, status
 import constants
 import models
 from db_dependency import db_dependency
+from utils.response_model import ResponseMessage
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -27,6 +28,12 @@ async def edit_wallet(
 
         db.commit()
 
-        return "User's wallet edited"
+        return ResponseMessage(error=False, message={
+            "text": "User's wallet edited",
+        },
+        )
 
-    return "No user exist"
+    return ResponseMessage(error=False, message={
+        "text": "No user exist",
+    },
+    )

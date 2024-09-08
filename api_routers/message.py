@@ -24,11 +24,17 @@ async def send(
                 text=message,
             )
 
-        return ResponseMessage(error=False, message="message sent.")
+        return ResponseMessage(error=False, message={
+            "text": "message sent.",
+        },
+        )
 
     except Exception as ex:
         print(ex)
-        return ResponseMessage(error=True, message="error.")
+        return ResponseMessage(error=False, message={
+            "text": "failed to send message",
+        },
+        )
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)

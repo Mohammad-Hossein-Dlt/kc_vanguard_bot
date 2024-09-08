@@ -1,3 +1,5 @@
+import re
+
 import models
 from bot_routers.connection_guide import connection_guide_steps
 from bot_routers.general_buttons import home_markup
@@ -157,8 +159,6 @@ async def callback_button_handler(update: Update, context: CallbackContext) -> N
 
 
 async def forward_message(update: Update, context: CallbackContext):
-    print("++++++++++++++++++++++++++++++")
-
     db = sessionLocal()
 
     admin = db.query(models.Admin).where(
@@ -166,14 +166,6 @@ async def forward_message(update: Update, context: CallbackContext):
     ).first()
 
     if admin:
-
-        # settings = db.query(models.Setting).first()
-        # bot_member = await context.bot.get_chat_member(
-        #     chat_id=update.effective_message.chat_id,
-        #     user_id=context.bot.id,
-        # )
-
-        # if bot_member.status == ChatMember.ADMINISTRATOR:
 
         users = db.query(models.Users).all()
         for user in users:
@@ -188,6 +180,43 @@ async def forward_message(update: Update, context: CallbackContext):
                         chat_id=user.Chat_Id,
                         from_chat_id=update.effective_message.chat_id,
                         message_id=update.effective_message.message_id,
+                    )
+            except Exception as ex:
+                print(ex)
+                print(f"Failed to send message to {user.Chat_Id}.")
+    db.close()
+
+
+async def send_message(update: Update, context: CallbackContext):
+
+    text = update.effective_message.text
+
+    admin_id = text[text.index("<aci>")+5:text.index("</aci>")]
+
+    print(admin_id)
+
+    db = sessionLocal()
+
+    admin = db.query(models.Admin).where(
+        models.Admin.Chat_Id == admin_id
+    ).first()
+
+    if admin:
+
+        message = update.effective_message.text.replace(f"<aci>{admin.Chat_Id}</aci>", "")
+
+        users = db.query(models.Users).all()
+        for user in users:
+            try:
+                if user.Chat_Id == admin.Chat_Id:
+                    await context.bot.send_message(
+                        chat_id=admin.Chat_Id,
+                        text=str(update.effective_message.message_id)
+                    )
+                else:
+                    await context.bot.send_message(
+                        chat_id=user.Chat_Id,
+                        text=message,
                     )
             except Exception as ex:
                 print(ex)
@@ -253,11 +282,14 @@ def main():
         ]
     )
 
+    pattern = re.compile(r"<aci>\d+</aci>")
+
     bot.add_handlers([
         send_receipt_conversation_handler,
         rial_payment_handler,
         send_voucher_conversation_handler,
         CommandHandler("start", start),
+        MessageHandler(filters.Regex(r'<aci>\d+</aci>'), send_message),
         MessageHandler(filters.FORWARDED, forward_message),
         MessageHandler(filters.TEXT & ~filters.COMMAND, home_button_handler),
         CallbackQueryHandler(callback_button_handler),

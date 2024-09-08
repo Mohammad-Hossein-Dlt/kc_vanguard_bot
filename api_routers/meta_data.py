@@ -32,7 +32,10 @@ async def edit(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="meta_data edited.")
+    return ResponseMessage(error=False, message={
+        "text": "meta_data edited.",
+    },
+    )
 
 
 @router.get('/fetch', status_code=status.HTTP_200_OK)
@@ -60,4 +63,7 @@ async def delete(
         db.delete(meta_data)
         db.commit()
 
-    return ResponseMessage(error=False, message="meta_data deleted.")
+    return ResponseMessage(error=False, message={
+        "text": "meta_data deleted.",
+    },
+    )

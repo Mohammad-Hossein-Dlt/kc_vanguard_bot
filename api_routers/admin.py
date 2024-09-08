@@ -53,9 +53,17 @@ async def edit_wallet(
         db.add(new_admin)
         db.commit()
 
-        return ResponseMessage(error=False, message="new admin inserted.")
+        return ResponseMessage(error=False, message={
+            "text": "new admin inserted.",
+            "admin_id": new_admin.Id,
+        },
+        )
 
-    return ResponseMessage(error=False, message="the admin is exist.")
+    return ResponseMessage(error=False, message={
+        "admin_id": admin.Id,
+        "text": "the admin is exist.",
+    },
+    )
 
 
 @router.put('/edit', status_code=status.HTTP_200_OK)
@@ -91,12 +99,21 @@ async def edit_wallet(
                 edit_super_admin = False
 
         if not edit_super_admin:
-            return ResponseMessage(error=True, message="there should be at least one super admin.")
+            return ResponseMessage(error=True, message={
+                "text": "there should be at least one super admin.",
+            },
+            )
 
         db.commit()
-        return ResponseMessage(error=False, message="admin edited.")
+        return ResponseMessage(error=False, message={
+            "text": "admin edited.",
+        },
+        )
 
-    return ResponseMessage(error=False, message="no admin exist.")
+    return ResponseMessage(error=False, message={
+        "text": "no admin exist.",
+    },
+    )
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)
@@ -112,4 +129,7 @@ async def edit_wallet(
         db.delete(admin)
         db.commit()
 
-    return ResponseMessage(error=False, message="admin deleted.")
+    return ResponseMessage(error=False, message={
+        "text": "admin deleted.",
+    },
+    )

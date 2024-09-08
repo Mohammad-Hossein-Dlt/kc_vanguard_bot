@@ -50,7 +50,11 @@ async def insert(
     db.add(server)
     db.commit()
 
-    return {"server_id": server.Id}
+    return ResponseMessage(error=False, message={
+        "text": "server inserted.",
+        "server_id": server.Id,
+    },
+    )
 
 
 @router.put('/edit', status_code=status.HTTP_200_OK)
@@ -78,7 +82,10 @@ async def edit(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="server updated.")
+    return ResponseMessage(error=False, message={
+        "text": "server updated.",
+    },
+    )
 
 
 @router.put("/reorder", status_code=status.HTTP_200_OK)
@@ -95,7 +102,10 @@ async def reorder(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="servers reordered.")
+    return ResponseMessage(error=False, message={
+        "text": "servers reordered.",
+    },
+    )
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)
@@ -111,4 +121,7 @@ async def delete(
         db.delete(server)
         db.commit()
 
-    return ResponseMessage(error=False, message="server deleted.")
+    return ResponseMessage(error=False, message={
+        "text": "server deleted.",
+    },
+    )

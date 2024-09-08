@@ -37,10 +37,16 @@ async def create(
 
     else:
         settings = models.Setting()
+        settings.Enabled = enable
 
         db.add(settings)
 
     db.commit()
+
+    return ResponseMessage(error=False, message={
+            "text": "settings edited.",
+        },
+    )
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)
@@ -56,4 +62,7 @@ async def delete(
         db.delete(settings)
         db.commit()
 
-    return ResponseMessage(error=False, message="settings deleted.")
+    return ResponseMessage(error=False, message={
+            "text": "settings deleted.",
+        },
+    )

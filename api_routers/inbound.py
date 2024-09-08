@@ -27,7 +27,8 @@ async def fetch_all(
     ).all()
 
     for i in inbounds:
-        i.Length = inbound_client_len(server.Url, server.UserName, server.Password, i.Panel_Inbound_Id)
+        length = inbound_client_len(server.Url, server.UserName, server.Password, i.Panel_Inbound_Id)
+        i.Length = length if length is not None else 0
 
     return inbounds
 
@@ -43,7 +44,8 @@ async def fetch_one(
         models.Inbounds.Id == inbound_id
     ).first()
 
-    inbound.Length = inbound_client_len(server.Url, server.UserName, server.Password, inbound.Panel_Inbound_Id)
+    length = inbound_client_len(server.Url, server.UserName, server.Password, inbound.Panel_Inbound_Id)
+    inbound.Length = length if length is not None else 0
 
     return inbound
 
@@ -72,7 +74,6 @@ async def insert(
     inbound.Security = security
 
     header_type = constants.HeaderType.none
-    # if network == 'tcp' and security == 'tls':
     if network == constants.Network.tcp and security == constants.Security.tls:
         header_type = constants.HeaderType.http
 
@@ -81,7 +82,11 @@ async def insert(
     db.add(inbound)
     db.commit()
 
-    return ResponseMessage(error=False, message="inbound added.")
+    return ResponseMessage(error=False, message={
+        "inbound_id": inbound.Id,
+        "text": "new inbound inserted.",
+    },
+    )
 
 
 @router.put('/edit', status_code=status.HTTP_200_OK)
@@ -129,7 +134,10 @@ async def edit(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="inbound edited.")
+    return ResponseMessage(error=False, message={
+        "text": "inbound edited.",
+    },
+    )
 
 
 @router.put("/reorder", status_code=status.HTTP_200_OK)
@@ -151,7 +159,10 @@ async def reorder(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="inbounds reordered.")
+    return ResponseMessage(error=False, message={
+        "text": "inbounds reordered.",
+    },
+    )
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)
@@ -167,4 +178,7 @@ async def delete(
         db.delete(inbound)
         db.commit()
 
-    return ResponseMessage(error=False, message="inbound deleted.")
+    return ResponseMessage(error=False, message={
+        "text": "inbound deleted.",
+    },
+    )

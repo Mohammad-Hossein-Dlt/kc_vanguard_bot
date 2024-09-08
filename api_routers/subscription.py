@@ -52,7 +52,11 @@ async def insert(
     db.add(subscription)
     db.commit()
 
-    return {"subscription_id": subscription.Id}
+    return ResponseMessage(error=False, message={
+        "subscription_id": subscription.Id,
+        "text": "new subscription inserted.",
+    },
+    )
 
 
 @router.put('/edit', status_code=status.HTTP_200_OK)
@@ -80,7 +84,10 @@ async def edit(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="subscription edited.")
+    return ResponseMessage(error=False, message={
+        "text": "subscription edited.",
+    },
+    )
 
 
 @router.put("/reorder", status_code=status.HTTP_200_OK)
@@ -97,7 +104,10 @@ async def reorder(
 
     db.commit()
 
-    return ResponseMessage(error=False, message="subscriptions reordered.")
+    return ResponseMessage(error=False, message={
+        "text": "subscriptions reordered.",
+    },
+    )
 
 
 @router.delete('/delete', status_code=status.HTTP_200_OK)
@@ -113,4 +123,7 @@ async def delete(
         db.delete(subscription)
         db.commit()
 
-    return ResponseMessage(error=False, message="subscription deleted.")
+    return ResponseMessage(error=False, message={
+        "text": "subscription deleted.",
+    },
+    )
