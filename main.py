@@ -69,7 +69,7 @@ def do_update():
         time.sleep(10)
 
 
-def set_stats():
+def set_stats_inbounds():
     db = sessionLocal()
 
     services = db.query(
@@ -105,8 +105,58 @@ def set_stats():
 
                 if status:
 
+                    service.Usage = status["usage"]
                     service.Remained = status["remained"]
+
         except Exception as ex:
+            print(ex)
+            pass
+
+    db.commit()
+    db.close()
+
+
+def set_stats_test_inbounds():
+    db = sessionLocal()
+
+    services = db.query(
+        models.UsersServices,
+        models.TestInbounds,
+    ).join(
+        models.TestInbounds,
+    ).all()
+
+    for i in services:
+        service = i[0]
+        the_inbound = i[1]
+        the_server = db.query(models.Servers).where(
+            models.Servers.Id == the_inbound.Server_Id
+        ).first()
+
+        try:
+            if get_client(
+                    panel_url=the_server.Url,
+                    username=the_server.UserName,
+                    password=the_server.Password,
+                    inbound_id=the_inbound.Panel_Inbound_Id,
+                    email=service.Email,
+            ):
+
+                status = get_client_info(
+                    panel_url=the_server.Url,
+                    username=the_server.UserName,
+                    password=the_server.Password,
+                    inbound_id=the_inbound.Panel_Inbound_Id,
+                    email=service.Email,
+                )
+
+                if status:
+
+                    service.Usage = status["usage"]
+                    service.Remained = status["remained"]
+
+        except Exception as ex:
+            print(ex)
             pass
 
     db.commit()
@@ -115,7 +165,8 @@ def set_stats():
 
 def set_stats_update():
     while True:
-        set_stats()
+        set_stats_inbounds()
+        set_stats_test_inbounds()
         time.sleep(10)
 
 

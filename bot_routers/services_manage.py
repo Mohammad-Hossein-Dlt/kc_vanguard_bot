@@ -261,7 +261,7 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
         services = "سرویس انتخابی شما: "
         test_services = "سرویس تست" + "\n\n" if not user_service.Subscription_Id else ""
         email = f" نام:  {user_service.Email} "
-        usage = f"حجم مصرف شده:  {constants.data_size(user_service.Total_GB - user_service.Remained)}"
+        usage = f"حجم مصرف شده:  {constants.data_size(user_service.Usage)}"
         remained = f"حجم باقی مانده:  {constants.data_size(user_service.Remained)}" + "\n\n" if user_service.Total_GB > 0 else ""
         total = f" آستانه مصرف:  {constants.data_size(user_service.Total_GB) if user_service.Total_GB > 0 else 'نامحدود'}"
         expiry_time = f" تاریخ انقضا:  {stats['expiry_time']}"
@@ -566,19 +566,7 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
             models.UsersServices.Id == services_id
         ).first()
 
-        server = db.query(models.Servers).where(
-            models.Servers.Id == inbound.Server_Id
-        ).first()
-
-        stats = get_client_info(
-            panel_url=server.Url,
-            username=server.UserName,
-            password=server.Password,
-            inbound_id=inbound.Panel_Inbound_Id,
-            email=user_service.Email,
-        )
-
-        if not single_subscription or not user_service or not user or not subscription or not inbound or not stats:
+        if not single_subscription or not user_service or not user or not subscription or not inbound:
             await server_not_available(update, context)
             return
 

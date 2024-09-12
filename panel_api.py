@@ -192,15 +192,13 @@ def get_client_info(
         remained = total - usage
         expiry_timestamp = client['expiryTime']
 
-        # expiry_time = datetime.fromtimestamp()
-
         jalali_expiry_time = jdatetime.datetime.fromtimestamp(expiry_timestamp / 1000).strftime('%H:%M:%S  <-  %Y/%m/%d') if len(str(expiry_timestamp)) == 13 and expiry_timestamp > 0 else 0
 
         return {
             'up': up,
             'down': down,
             'usage': usage,
-            'remained': remained,
+            'remained': remained if remained > 0 else 0,
             'total': total,
             'expired_volume': usage >= total,
             'expiry_time': jalali_expiry_time

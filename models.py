@@ -106,7 +106,8 @@ class UsersServices(Base):
     Number_Of_Users = Column(Integer, nullable=False)
     ExpirationDate = Column(DateTime, nullable=False)
     Total_GB = Column(BigInteger, nullable=False)
-    Remained = Column(BigInteger, nullable=True, default=0)
+    Usage = Column(BigInteger, nullable=False, default=0)
+    Remained = Column(BigInteger, nullable=False, default=0)
 
 
 class Payments(Base):
