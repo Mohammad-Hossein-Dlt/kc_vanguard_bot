@@ -41,6 +41,8 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
 
         buttons_keys = []
 
+        temp_button = []
+
         for i in services:
             callback_data = data.copy()
             callback_data["id"] = i.Id
@@ -48,14 +50,15 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
 
             encode = callback_data_encoder(callback_data)
 
-            buttons_keys.append(
-                [
-                    InlineKeyboardButton(
+            temp_button.append(
+                InlineKeyboardButton(
                         i.Email,
                         callback_data=encode
-                    ),
-                ]
+                ),
             )
+            if len(temp_button) == 2 or i.Id == services[-1].Id:
+                buttons_keys.append(temp_button)
+                temp_button = []
 
         buttons_keys.append(
             [
