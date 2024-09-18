@@ -1,7 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 import models
-from config import SERVER_URL
 from constants import gb_size
 from database import sessionLocal
 from panel_api import add_client, inbound_client_len
@@ -15,9 +14,17 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
     step = data["step"]
     inbound_id = data["i_id"]
 
+    discount = None
+
+    try:
+        if data["d_c"]:
+            discount = data["d_c"]
+    except Exception as ex:
+        print(ex)
+
     # ----------------------------- Expire Message -------------------------
 
-    if await is_task_expired(update, context) and inbound_id != 0:
+    if await is_task_expired(update, context) and inbound_id != 0 and not discount:
         await expired_message(update, context)
         return
 
@@ -330,19 +337,22 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
             await server_not_available(update, context)
             return
 
-        callback_data = data
+        callback_data = data.copy()
         callback_data["step"] = 5
 
         encode = callback_data_encoder(callback_data)
 
+        context.user_data["data"] = data.copy()
+
         back_state = data.copy()
         back_state["step"] = 3
 
-        services = "سرویس انتخابی شما:  "
-        location = f" لوکیشن:  {inbound.Remark} "
-        nou = f" تعداد کاربر:  {subscription.Number_Of_Users} "
-        m = f" مدت زمان:  {int(subscription.Days / 30)} ماهه"
-        total_gb = f" حجم سرویس:  {subscription.Total_GB} گیگ" if subscription.Total_GB != 0 else f" حجم سرویس:  نامحدود"
+        title = "🛒 خرید سرویس" + "\n" if discount else ""
+        services = "💎 سرویس انتخابی شما:"
+        location = f"🌐 لوکیشن:  {inbound.Remark}"
+        nou = f"👤 تعداد کاربر:  {subscription.Number_Of_Users}"
+        m = f"📆 مدت زمان:  {int(subscription.Days / 30)} ماهه"
+        total_gb = f"📦 حجم سرویس:  {single_subscription.Total_GB} گیگ" if single_subscription.Total_GB != 0 else f"📦 حجم سرویس:  نامحدود"
 
         controls_key = [
             [
@@ -351,7 +361,7 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
                     callback_data="None1",
                 ),
                 InlineKeyboardButton(
-                    "قیمت سرویس:",
+                    "💰 قیمت سرویس:",
                     callback_data="None2",
                 ),
             ],
@@ -362,11 +372,16 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
                     callback_data="None3",
                 ),
                 InlineKeyboardButton(
-                    " اعتبار کیف پول شما:",
+                    "💳 اعتبار کیف پول شما:",
                     callback_data="None4",
                 ),
             ],
-
+            [
+                InlineKeyboardButton(
+                    "🎁 اعمال کد تخفیف",
+                    callback_data="discount-code",
+                ),
+            ],
             [
                 InlineKeyboardButton(
                     BACK,
@@ -379,15 +394,87 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
             ],
         ]
 
-        controls_markup = InlineKeyboardMarkup(controls_key)
+        if discount:
+            deducted = int((subscription.Price * discount) / 100)
+            price_with_discount = subscription.Price - deducted
+            controls_key = [
+                [
+                    InlineKeyboardButton(
+                        f"{subscription.Price} تومان",
+                        callback_data="None1",
+                    ),
+                    InlineKeyboardButton(
+                        "💰 قیمت سرویس:",
+                        callback_data="None2",
+                    ),
+                ],
 
-        await update.effective_message.edit_text(
-            text=f"{services}\n\n{location}\n\n{nou}\n\n{m}\n\n{total_gb}",
-            reply_markup=controls_markup,
-        )
+                [
+                    InlineKeyboardButton(
+                        f"{deducted} تومان",
+                        callback_data="None3",
+                    ),
+                    InlineKeyboardButton(
+                        "🎁 تخفیف:",
+                        callback_data="None4",
+                    ),
+                ],
+
+                [
+                    InlineKeyboardButton(
+                        f"{price_with_discount} تومان",
+                        callback_data="None5",
+                    ),
+                    InlineKeyboardButton(
+                        "💝 قیمت با تخفیف:",
+                        callback_data="None6",
+                    ),
+                ],
+
+                [
+                    InlineKeyboardButton(
+                        f"{user.Wallet} تومان",
+                        callback_data="None7",
+                    ),
+                    InlineKeyboardButton(
+                        "💳 اعتبار کیف پول شما:",
+                        callback_data="None8",
+                    ),
+                ],
+
+                [
+                    InlineKeyboardButton(
+                        "❌  بستن پنل",
+                        callback_data="close"
+                    ),
+                    InlineKeyboardButton(
+                        "🛒  خرید",
+                        callback_data=encode,
+                    ),
+                ],
+            ]
+
+        controls_markup = InlineKeyboardMarkup(controls_key)
+        if discount:
+            message = await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="\u202B" + f"{title}{services}\n{location}\n{nou}\n{m}\n{total_gb}",
+                reply_markup=controls_markup,
+            )
+            await add_task(update.effective_user.id, message.message_id)
+        else:
+            await update.effective_message.edit_text(
+                text="\u202B" + f"{title}{services}\n{location}\n{nou}\n{m}\n{total_gb}",
+                reply_markup=controls_markup,
+            )
         db.close()
 
     if step == 5:
+        if discount:
+            if await is_task_expired(update, context) and inbound_id != 0:
+                await expired_message(update, context)
+                return
+
         db = sessionLocal()
 
         server, inbound = db.query(models.Servers, models.Inbounds).join(
@@ -446,7 +533,10 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
             return
 
         if config_url and email and client_id:
-            user.Wallet -= subscription.Price
+            deducted = 0
+            if discount:
+                deducted = (subscription.Price * discount) / 100
+            user.Wallet -= (subscription.Price - deducted)
 
             user_service = models.UsersServices()
             user_service.Inbound_Id = inbound_id

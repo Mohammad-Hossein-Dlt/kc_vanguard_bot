@@ -5,6 +5,7 @@ from bot_routers.connection_guide import connection_guide_steps
 from bot_routers.general_buttons import home_markup
 from bot_routers.buy import buy_steps
 from bot_routers.get_rates import get_rates_steps
+from bot_routers.set_discount_code import send_discount_code, code_state, apply_discount_code
 from bot_routers.support import support_steps
 from bot_routers.user_profile import user_profile_steps
 from bot_routers.wallet import wallet_steps
@@ -270,6 +271,16 @@ def main():
         fallbacks=[]
     )
 
+    discount_code_handler = ConversationHandler(
+        entry_points=[CallbackQueryHandler(send_discount_code, pattern="discount-code")],
+        states={
+            code_state: [
+                MessageHandler(filters.TEXT, apply_discount_code)
+            ],
+        },
+        fallbacks=[]
+    )
+
     bot.add_handlers(
         [
             CallbackQueryHandler(confirm_receipt, pattern="Confirm_*"),
@@ -288,6 +299,7 @@ def main():
         send_receipt_conversation_handler,
         rial_payment_handler,
         send_voucher_conversation_handler,
+        discount_code_handler,
         CommandHandler("start", start),
         MessageHandler(filters.Regex(r'<aci>\d+</aci>'), send_message),
         MessageHandler(filters.FORWARDED, forward_message),

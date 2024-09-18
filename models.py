@@ -119,3 +119,10 @@ class Payments(Base):
     Ref_Id = Column(Text, nullable=True)
     Amount = Column(BigInteger, nullable=False)
     Status = Column(Boolean, nullable=True, default=None)
+
+
+class DiscountCodes(Base):
+    __tablename__ = 'DiscountCodes'
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Code = Column(Text, unique=True, nullable=False)
+    Percent = Column(Integer, nullable=False, default=0)

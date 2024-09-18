@@ -17,9 +17,17 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
     step = data["step"]
     services_id = data["id"]
 
+    discount = None
+
+    try:
+        if data["d_c"]:
+            discount = data["d_c"]
+    except Exception as ex:
+        print(ex)
+
     # ----------------------------- Expire Message -----------------------------------
 
-    if await is_task_expired(update, context) and services_id != 0:
+    if await is_task_expired(update, context) and services_id != 0 and not discount:
         await expired_message(update, context)
         return
 
@@ -52,8 +60,8 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
 
             temp_button.append(
                 InlineKeyboardButton(
-                        i.Email,
-                        callback_data=encode
+                    i.Email,
+                    callback_data=encode
                 ),
             )
             if len(temp_button) == 2 or i.Id == services[-1].Id:
@@ -116,13 +124,13 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
             await server_not_available(update, context)
             return
 
-        services = "سرویس انتخابی شما:  "
-        test_services = "سرویس تست" + "\n\n" if not user_service.Subscription_Id else ""
-        location = f" سرور:  {inbound.Remark} "
-        email = f" نام:  {user_service.Email} "
-        nou = f" تعداد کاربر:  {user_service.Number_Of_Users} "
-        m = f" مدت زمان:  {int(user_service.Days / 30)} ماهه" if user_service.Days >= 30 else f" مدت زمان:  {int(user_service.Days)} روزه"
-        gb = f" حجم سرویس:  {constants.data_size(user_service.Total_GB) if user_service.Total_GB > 0 else 'نامحدود'}"
+        services = "💎 سرویس انتخابی شما: "
+        test_services = "🧪 سرویس تست" + "\n\n" if not user_service.Subscription_Id else ""
+        location = f" 🌐 سرور:  {inbound.Remark}"
+        email = f" 🌿 نام: {user_service.Email}"
+        nou = f" 👤 تعداد کاربر:  {user_service.Number_Of_Users}"
+        m = f" 📆 مدت زمان:  {int(user_service.Days / 30)} ماهه" if user_service.Days >= 30 else f" 📆 مدت زمان:  {int(user_service.Days)} روزه"
+        gb = f" 📦 حجم سرویس:  {constants.data_size(user_service.Total_GB) if user_service.Total_GB > 0 else 'نامحدود'}"
 
         next_2 = data.copy()
         next_2["step"] = 2
@@ -148,7 +156,7 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
             buttons_key = [
                 [
                     InlineKeyboardButton(
-                        "ℹ️  اطلاعات سرویس",
+                        "ℹ️" + " اطلاعات سرویس",
                         callback_data=callback_data_encoder(next_2),
                     ),
                 ],
@@ -193,7 +201,7 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
                         callback_data=callback_data_encoder(next_3),
                     ),
                     InlineKeyboardButton(
-                        "ℹ️  اطلاعات سرویس",
+                        "ℹ️" + " اطلاعات سرویس",
                         callback_data=callback_data_encoder(next_2),
                     ),
                 ],
@@ -261,13 +269,13 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
             await server_not_available(update, context)
             return
 
-        services = "سرویس انتخابی شما: "
-        test_services = "سرویس تست" + "\n\n" if not user_service.Subscription_Id else ""
-        email = f" نام:  {user_service.Email} "
-        usage = f"حجم مصرف شده:  {constants.data_size(user_service.Usage)}"
-        remained = f"حجم باقی مانده:  {constants.data_size(user_service.Remained)}" + "\n\n" if user_service.Total_GB > 0 else ""
-        total = f" آستانه مصرف:  {constants.data_size(user_service.Total_GB) if user_service.Total_GB > 0 else 'نامحدود'}"
-        expiry_time = f" تاریخ انقضا:  {stats['expiry_time']}"
+        services = "💎 سرویس انتخابی شما: "
+        test_services = "🧪 سرویس تست" + "\n\n" if not user_service.Subscription_Id else ""
+        email = f" 🌿 نام:  {user_service.Email}"
+        usage = f" ⬇️ حجم مصرف شده:  {constants.data_size(user_service.Usage)}"
+        remained = f" 📊 حجم باقی مانده:  {constants.data_size(user_service.Remained)}" + "\n\n" if user_service.Total_GB > 0 else ""
+        total = f" ♾️ آستانه مصرف:  {constants.data_size(user_service.Total_GB) if user_service.Total_GB > 0 else 'نامحدود'}"
+        expiry_time = f" 📆 تاریخ انقضا:  {stats['expiry_time']}"
 
         back_state = data.copy()
         back_state["step"] = 1
@@ -353,9 +361,7 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
             )
 
             connection_link = "لینک سرویس:"
-            info_link = "لینک اطلاعات سرویس:"
-            information = f"{SERVER_URL}/api/v2/config/config_information?service_id={user_service.Id}"
-            text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}\n\n{info_link}\n\n{information}")
+            text = escape(f"{connection_link}\n\n{tap_to_coppy(config_url)}")
             await update.effective_message.edit_text(
                 text=text,
                 reply_markup=buttons_markup,
@@ -576,24 +582,27 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
         to_extend = data.copy()
         to_extend["step"] = 8
 
+        context.user_data["data"] = data.copy()
+
         back_state = data.copy()
         back_state["step"] = 6
 
-        services = "سرویس انتخابی شما:  "
-        email = f" نام:  {user_service.Email} "
-        location = f" لوکیشن:  {inbound.Remark} "
-        nou = f" تعداد کاربر:  {single_subscription.Number_Of_Users} "
-        m = f" مدت زمان:  {int(single_subscription.Days / 30)} ماهه"
-        total_gb = f" حجم سرویس:  {single_subscription.Total_GB} گیگ" if single_subscription.Total_GB != 0 else f" حجم سرویس:  نامحدود"
+        title = "♻️ تمدید سرویس" + "\n" if discount else ""
+        services = "💎 سرویس انتخابی شما:"
+        email = f"🌿 نام:  {user_service.Email}"
+        location = f"🌐 لوکیشن:  {inbound.Remark}"
+        nou = f"👤 تعداد کاربر:  {single_subscription.Number_Of_Users}"
+        m = f"📆 مدت زمان:  {int(single_subscription.Days / 30)} ماهه"
+        total_gb = f"📦 حجم سرویس:  {single_subscription.Total_GB} گیگ" if single_subscription.Total_GB != 0 else f"📦 حجم سرویس:  نامحدود"
 
-        buttons_key = [
+        controls_key = [
             [
                 InlineKeyboardButton(
                     f"{single_subscription.Price} تومان",
                     callback_data="None1",
                 ),
                 InlineKeyboardButton(
-                    "قیمت سرویس:",
+                    "💰 قیمت سرویس:",
                     callback_data="None2",
                 ),
             ],
@@ -604,36 +613,110 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
                     callback_data="None3",
                 ),
                 InlineKeyboardButton(
-                    " اعتبار کیف پول شما:",
+                    "💳 اعتبار کیف پول شما:",
                     callback_data="None4",
                 ),
             ],
-
             [
                 InlineKeyboardButton(
-                    "❌  بستن پنل",
-                    callback_data="close"
+                    "🎁 اعمال کد تخفیف",
+                    callback_data="discount-code",
                 ),
+            ],
+            [
                 InlineKeyboardButton(
                     BACK,
                     callback_data=callback_data_encoder(back_state),
                 ),
                 InlineKeyboardButton(
-                    "️️♻️  تمدید",
+                    "🛒  خرید",
                     callback_data=callback_data_encoder(to_extend),
-                )
+                ),
             ],
         ]
 
-        buttons_markup = InlineKeyboardMarkup(buttons_key)
+        if discount:
+            deducted = int((single_subscription.Price * discount) / 100)
+            price_with_discount = single_subscription.Price - deducted
+            controls_key = [
+                [
+                    InlineKeyboardButton(
+                        f"{single_subscription.Price} تومان",
+                        callback_data="None1",
+                    ),
+                    InlineKeyboardButton(
+                        "💰 قیمت سرویس:",
+                        callback_data="None2",
+                    ),
+                ],
 
-        await update.effective_message.edit_text(
-            text=f"{services}\n\n{email}\n\n{location}\n\n{nou}\n\n{m}\n\n{total_gb}",
-            reply_markup=buttons_markup,
-        )
+                [
+                    InlineKeyboardButton(
+                        f"{deducted} تومان",
+                        callback_data="None3",
+                    ),
+                    InlineKeyboardButton(
+                        "🎁 تخفیف:",
+                        callback_data="None4",
+                    ),
+                ],
+
+                [
+                    InlineKeyboardButton(
+                        f"{price_with_discount} تومان",
+                        callback_data="None5",
+                    ),
+                    InlineKeyboardButton(
+                        "💝 قیمت با تخفیف:",
+                        callback_data="None6",
+                    ),
+                ],
+
+                [
+                    InlineKeyboardButton(
+                        f"{user.Wallet} تومان",
+                        callback_data="None7",
+                    ),
+                    InlineKeyboardButton(
+                        "💳 اعتبار کیف پول شما:",
+                        callback_data="None8",
+                    ),
+                ],
+
+                [
+                    InlineKeyboardButton(
+                        "❌  بستن پنل",
+                        callback_data="close"
+                    ),
+                    InlineKeyboardButton(
+                        "🛒  خرید",
+                        callback_data=callback_data_encoder(to_extend),
+                    ),
+                ],
+            ]
+
+        buttons_markup = InlineKeyboardMarkup(controls_key)
+
+        if discount:
+            message = await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="\u202B" + f"{title}{services}\n{email}\n{location}\n{nou}\n{m}\n{total_gb}",
+                reply_markup=buttons_markup,
+            )
+            await add_task(update.effective_user.id, message.message_id)
+        else:
+            await update.effective_message.edit_text(
+                text="\u202B" + f"{title}{services}\n{email}\n{location}\n{nou}\n{m}\n{total_gb}",
+                reply_markup=buttons_markup,
+            )
         db.close()
 
     if step == 8:
+        if discount:
+            if await is_task_expired(update, context) and services_id != 0:
+                await expired_message(update, context)
+                return
+
         db = sessionLocal()
 
         single_subscription = db.query(models.Subscriptions).where(
