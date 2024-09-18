@@ -1,15 +1,11 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import CallbackContext, ConversationHandler
 import models
 from bot_routers.buy import buy_steps
 from bot_routers.general_buttons import back_markup, home_markup
 from bot_routers.services_manage import services_manage_steps
-from constants import gb_size
 from database import sessionLocal
-from panel_api import add_client
 from raw_texts import BACK_TO_HOME
-from utils.actions import server_not_available, tap_to_coppy, escape
-from utils.expire_time import expiration_time
 
 code_state = 0
 
