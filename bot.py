@@ -293,8 +293,6 @@ def main():
         ]
     )
 
-    pattern = re.compile(r"<aci>\d+</aci>")
-
     bot.add_handlers([
         send_receipt_conversation_handler,
         rial_payment_handler,

@@ -501,7 +501,7 @@ async def buy_steps(data: dict, update: Update, context: CallbackContext):
             await server_not_available(update, context)
             return
 
-        if user.Wallet <= subscription.Price:
+        if user.Wallet < subscription.Price:
             await update.callback_query.answer(
                 text="موجودی شما برای خرید این سرویس کافی نیست\nشما میتوانید اعتبار کیف پول خود را از بخش کیف پول "
                      "افزایش دهید",
