@@ -754,64 +754,67 @@ async def services_manage_steps(data: dict, update: Update, context: CallbackCon
             await server_not_available(update, context)
             return
 
-        if stats["expiry_time"] == 0 or stats["total"] == 0:
-            await update.callback_query.answer(
-                text=f" سرویس {user_service.Email} نیازی به تمدید ندارد. ",
-                show_alert=True,
-            )
-        else:
-            now = datetime.now()
-            date = datetime.strptime(stats["expiry_time"], "%d-%m-%Y")
-            expiry_time = date < now
+        now = datetime.now()
 
-            if expiry_time or stats["expired_volume"]:
+        # if stats["expiry_time"] == 0 or stats["total"] == 0:
+        #     await update.callback_query.answer(
+        #         text=f" سرویس {user_service.Email} نیازی به تمدید ندارد. ",
+        #         show_alert=True,
+        #     )
+        #     return
 
-                if user.Wallet >= subscription.Price:
+        # date = datetime.strptime(stats["expiry_time"], "%d-%m-%Y")
+        date = datetime.fromtimestamp(stats["raw_expiry_time"])
+        expiry_time = date < now
 
-                    subscription = db.query(models.Subscriptions).distinct().where(
-                        models.Subscriptions.Number_Of_Users == single_subscription.Number_Of_Users,
-                        models.Subscriptions.Days == single_subscription.Days,
-                        models.Subscriptions.Total_GB == single_subscription.Total_GB,
-                    ).first()
+        if expiry_time or stats["expired_volume"]:
 
-                    expire_time, raw_time = expiration_time(days=subscription.Days)
+            if user.Wallet >= subscription.Price:
 
-                    client = update_client(
-                        panel_url=server.Url,
-                        username=server.UserName,
-                        password=server.Password,
-                        inbound_id=inbound.Panel_Inbound_Id,
-                        ip_limit=single_subscription.Number_Of_Users,
-                        expire_time=expire_time,
-                        total_gb=single_subscription.Total_GB * constants.gb_size,
-                        client_id=user_service.UUID,
-                        email=user_service.Email,
+                subscription = db.query(models.Subscriptions).distinct().where(
+                    models.Subscriptions.Number_Of_Users == single_subscription.Number_Of_Users,
+                    models.Subscriptions.Days == single_subscription.Days,
+                    models.Subscriptions.Total_GB == single_subscription.Total_GB,
+                ).first()
+
+                expire_time, raw_time = expiration_time(days=subscription.Days)
+
+                client = update_client(
+                    panel_url=server.Url,
+                    username=server.UserName,
+                    password=server.Password,
+                    inbound_id=inbound.Panel_Inbound_Id,
+                    ip_limit=single_subscription.Number_Of_Users,
+                    expire_time=expire_time,
+                    total_gb=single_subscription.Total_GB * constants.gb_size,
+                    client_id=user_service.UUID,
+                    email=user_service.Email,
+                )
+
+                if client:
+                    user.Wallet -= subscription.Price
+                    user_service.Total_GB = subscription.Total_GB * constants.gb_size
+                    user_service.Remained = 0
+
+                    await update.effective_message.edit_text(
+                        text=f"سرویس{user_service.Email} با موفقیت تمدید شد ",
                     )
-
-                    if client:
-                        user.Wallet -= subscription.Price
-                        user_service.Total_GB = subscription.Total_GB * constants.gb_size
-                        user_service.Remained = 0
-
-                        await update.effective_message.edit_text(
-                            text=f"سرویس{user_service.Email} با موفقیت تمدید شد ",
-                        )
-                    else:
-                        await update.callback_query.answer(
-                            text="خطایی رخ داد!",
-                            show_alert=True,
-                        )
                 else:
                     await update.callback_query.answer(
-                        text="موجودی شما برای تمدید این سرویس کافی نیست\nشما میتوانید اعتبار کیف پول خود را از بخش "
-                             "کیف پول افزایش دهید",
+                        text="خطایی رخ داد!",
                         show_alert=True,
                     )
             else:
                 await update.callback_query.answer(
-                    text=f"سرویس{user_service.Email} هنوز اعتبار دارد",
+                    text="موجودی شما برای تمدید این سرویس کافی نیست\nشما میتوانید اعتبار کیف پول خود را از بخش "
+                         "کیف پول افزایش دهید",
                     show_alert=True,
                 )
+        else:
+            await update.callback_query.answer(
+                text=f"سرویس{user_service.Email} هنوز اعتبار دارد",
+                show_alert=True,
+            )
 
         db.commit()
         db.close()

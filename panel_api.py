@@ -3,7 +3,6 @@ import uuid, secrets
 from pyxui import XUI
 from pyxui.errors import NotFound
 from pyxui.config_gen import config_generator
-from datetime import datetime, timedelta
 import requests
 from pyxui.errors import BadLogin
 import jdatetime
@@ -11,6 +10,7 @@ import jdatetime
 xui = XUI(
     full_address='',
     panel='sanaei',
+    # https=False,
 )
 
 
@@ -201,7 +201,8 @@ def get_client_info(
             'remained': remained if remained > 0 else 0,
             'total': total,
             'expired_volume': usage >= total,
-            'expiry_time': jalali_expiry_time
+            'expiry_time': jalali_expiry_time,
+            'raw_expiry_time': expiry_timestamp / 1000
         }
     except Exception as ex:
         print(ex)

@@ -13,5 +13,5 @@ DB_HOST = "services.gen2.chabokan.net"
 DB_PORT = "51073"
 DB_NAME = "vpn_bot"
 
-SERVER_URL = 'https://docker-n6022i.chbk.run'
+SERVER_URL = 'https://docker-n6022i.chbk.app'
 

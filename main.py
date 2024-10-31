@@ -66,7 +66,7 @@ def do_update():
     while True:
         delete_failed_payments()
         delete_state()
-        time.sleep(10)
+        time.sleep(3600)
 
 
 def set_stats_inbounds():

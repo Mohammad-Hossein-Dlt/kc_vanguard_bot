@@ -72,12 +72,12 @@ async def wallet_steps(data: dict, update: Update, context: CallbackContext):
         back_state["step"] = 0
 
         buttons_key = [
-            [
-                InlineKeyboardButton(
-                    "ارسال رسید",
-                    callback_data="start_send_receipt",
-                )
-            ],
+            # [
+            #     InlineKeyboardButton(
+            #         "ارسال رسید",
+            #         callback_data="start_send_receipt",
+            #     )
+            # ],
             [
                 InlineKeyboardButton(
                     "پرداخت ریالی",
