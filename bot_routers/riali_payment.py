@@ -37,6 +37,14 @@ async def rial_payment(update: Update, context: CallbackContext) -> int:
         return ConversationHandler.END
 
     amount = update.effective_message.text
+
+    if not amount.isnumeric():
+        await update.effective_message.reply_text(
+            "لطفا عدد انگلیسی وارد کنید.",
+            reply_markup=home_markup,
+        )
+        return ConversationHandler.END
+
     payment_url = f"{SERVER_URL}/api/v2/payment/request/?user_id={update.effective_user.id}&payment_id={uuid.uuid4()}&amount={amount}"
 
     text = f" مبلغ {amount} تومان را از طریق لینک زیر پرداخت کنید "
