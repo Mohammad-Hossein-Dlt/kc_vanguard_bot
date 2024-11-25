@@ -1,17 +1,13 @@
 
 API_TOKEN = '7381427682:AAFPZInN7WnCKoxpheYDn8G091c8C5li-8g'
 
-# DB_USER = "root"
-# DB_PASSWORD = "UuBfPEJoXIfORHyqjlKdTS13"
-# DB_HOST = "billy.iran.liara.ir"
-# DB_PORT = "32382"
-# DB_NAME = "vpn_bot"
+ZARINPAL_MERCHANT_ID = "75218ab1-d6a0-4548-bd36-f819e26c306c"
 
-DB_USER = "root"
-DB_PASSWORD = "ZmnvhJObOA5Cq9tv"
-DB_HOST = "services.gen2.chabokan.net"
-DB_PORT = "51073"
-DB_NAME = "vpn_bot"
+DB_USER = ""
+DB_PASSWORD = ""
+DB_HOST = ""
+DB_PORT = ""
+DB_NAME = ""
 
-SERVER_URL = 'https://docker-n6022i.chbk.app'
+SERVER_URL = ''
 

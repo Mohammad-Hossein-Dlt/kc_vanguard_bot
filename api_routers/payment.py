@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.templating import Jinja2Templates
 import models
-from config import API_TOKEN
+from config import API_TOKEN, ZARINPAL_MERCHANT_ID
 from db_dependency import db_dependency
 from suds.client import Client
 from fastapi.responses import RedirectResponse
@@ -12,8 +12,6 @@ router = APIRouter(prefix="/payment", tags=["payment"])
 bot = Bot(token=API_TOKEN)
 
 templates = Jinja2Templates(directory='templates')
-
-ZARINPAL_MERCHANT_ID = "75218ab1-d6a0-4548-bd36-f819e26c306c"
 
 # ZARINPAL_WEBSERVICE_URL = "https://sandbox.zarinpal.com/pg/services/WebGate/wsdl"
 # ZARINPAL_PAYMENT_URL = "https://sandbox.zarinpal.com/pg/StartPay/"
